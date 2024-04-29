@@ -1,5 +1,8 @@
-﻿using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
+﻿using ControleMedicamentos.ConsoleApp.Compartilhado;
+using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
 using ControleMedicamentos.ConsoleApp.ModuloPaciente;
+using ControleMedicamentos.ConsoleApp.ModuloRequisicao;
+using System;
 
 namespace ControleMedicamentos.ConsoleApp
 {
@@ -7,10 +10,14 @@ namespace ControleMedicamentos.ConsoleApp
     {
         static void Main(string[] args)
         {
-            TelaMedicamento telaMedicamento = new TelaMedicamento();
-            TelaPaciente telaPaciente = new TelaPaciente();
+            RepositorioRequisicao repositorioRequisicao = new RepositorioRequisicao();
+            RepositorioMedicamento repositorioMedicamento = new RepositorioMedicamento();
+            RepositorioPaciente repositorioPaciente = new RepositorioPaciente();
 
-
+            TelaMedicamento telaMedicamento = new TelaMedicamento(repositorioMedicamento);
+            TelaPaciente telaPaciente = new TelaPaciente(repositorioPaciente);
+            TelaRequisicao telaRequisicao = new TelaRequisicao(repositorioRequisicao, repositorioMedicamento, repositorioPaciente);
+           
 
             ExibirTitulo();
 
@@ -30,22 +37,22 @@ namespace ControleMedicamentos.ConsoleApp
                 switch (opcaoPrincipalEscolhida)
                 {
                     case '1':
-                        //operacaoEscolhida = telaEquipamento.ApresentarMenu();
+                        operacaoEscolhida = telaPaciente.ApresentarMenu();
 
-                        //if (operacaoEscolhida == 'S' || operacaoEscolhida == 's')
-                        //    break;
+                        if (operacaoEscolhida == 'S' || operacaoEscolhida == 's')
+                            break;
 
-                        //if (operacaoEscolhida == '1')
-                        //    telaEquipamento.CadastrarEquipamento();
+                        if (operacaoEscolhida == '1')
+                            telaPaciente.CadastrarPaciente();
 
-                        //else if (operacaoEscolhida == '2')
-                        //    telaEquipamento.EditarEquipamento();
+                        else if (operacaoEscolhida == '2')
+                            telaPaciente.EditarPaciente();
 
-                        //else if (operacaoEscolhida == '3')
-                        //    telaEquipamento.ExcluirEquipamento();
+                        else if (operacaoEscolhida == '3')
+                            telaPaciente.ExcluirPaciente();
 
-                        //else if (operacaoEscolhida == '4')
-                        //    telaEquipamento.VisualizarEquipamentos(true);
+                        else if (operacaoEscolhida == '4')
+                            telaPaciente.VisualizarItens(true);
 
                         break;
 
@@ -65,27 +72,27 @@ namespace ControleMedicamentos.ConsoleApp
                             telaMedicamento.ExcluirMedicamento();
 
                         else if (operacaoEscolhida == '4')
-                            telaMedicamento.VisualizarMedicamentos(true);
+                            telaMedicamento.VisualizarItens(true);
 
                         break;
 
                     case '3':
-                        operacaoEscolhida = telaPaciente.ApresentarMenu();
+                        operacaoEscolhida = telaRequisicao.ApresentarMenu();
                         
                         if (operacaoEscolhida == 'S' || operacaoEscolhida == 's')
                             break;
 
                         if (operacaoEscolhida == '1')
-                            telaPaciente.CadastrarPaciente();
+                            telaRequisicao.CadastrarRequisicao();
 
                         if (operacaoEscolhida == '2')
-                            telaPaciente.EditarPaciente();
+                            telaRequisicao.EditarRequisicao();
 
                         if (operacaoEscolhida == '3')
-                            telaPaciente.ExcluirPaciente();
+                            telaRequisicao.ExcluirRequisicao();
 
                         else if (operacaoEscolhida == '4')
-                            telaPaciente.VisualizarPacientes(true);
+                            telaRequisicao.VisualizarItens(true);
 
                         break;
 
@@ -117,9 +124,9 @@ namespace ControleMedicamentos.ConsoleApp
             Console.WriteLine();
 
             Console.WriteLine("----------Menu----------");
-            Console.WriteLine("1 - Menu de Requisições");
+            Console.WriteLine("1 - Menu de Pacientes");
             Console.WriteLine("2 - Menu de Medicamentos");
-            Console.WriteLine("3 - Menu de Pacientes");
+            Console.WriteLine("3 - Menu de Requisições");
             Console.WriteLine("S - Sair");
 
             Console.WriteLine();

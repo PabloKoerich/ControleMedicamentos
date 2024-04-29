@@ -1,18 +1,24 @@
-Ôªøusing ControleMedicamentos.ConsoleApp.ModuloRequisicao;
+using ControleMedicamentos.ConsoleApp.Compartilhado;
+using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
+using ControleMedicamentos.ConsoleApp.ModuloPaciente;
+using ControleMedicamentos.ConsoleApp.ModuloRequisicao;
+using System;
 
 namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
 {
     public class TelaRequisicao
     {
-        public RepositorioRequisicao repositorio = new RepositorioRequisicao();
+        RepositorioMedicamento RepositorioMedicamento { get; set; }
+        RepositorioPaciente RepositorioPaciente { get; set; }
+        RepositorioRequisicao RepositorioRequisicao { get; set; }
 
-        //public TelaRequisicao()
-        //{
-        //    Requisicao requisicaoTeste = new Requisicao("Joaozinho", "111-222-333-44", "Bairro Universitario", "007 7500 4002 8922");
 
-        //    repositorio.CadastrarRequisicao(requisicaoTeste);
-        //}
-
+        public TelaRequisicao(RepositorioRequisicao repositorioRequisicao, RepositorioMedicamento repositorioMedicamento, RepositorioPaciente repositorioPaciente)
+        {
+            RepositorioRequisicao = repositorioRequisicao;
+            RepositorioMedicamento = repositorioMedicamento;
+            RepositorioPaciente = repositorioPaciente;
+        }
 
 
 
@@ -20,22 +26,22 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
         {
             Console.Clear();
 
-            Console.WriteLine("----------------------------------------");
-            Console.WriteLine("|        Gest√£o de Requisicaos        |");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("|        Gest„o de Requisicaos        |");
+            Console.WriteLine("---------------------------------------");
 
             Console.WriteLine();
 
             Console.WriteLine("1 - Cadastrar Requisicao");
             Console.WriteLine("2 - Editar Requisicao");
             Console.WriteLine("3 - Excluir Requisicao");
-            Console.WriteLine("4 - Visualizar Requisicaos");
+            Console.WriteLine("4 - Visualizar Requisicoes");
 
             Console.WriteLine("S - Voltar");
 
             Console.WriteLine();
 
-            Console.Write("Escolha uma das op√ß√µes: ");
+            Console.Write("Escolha uma das opÁıes: ");
             char operacaoEscolhida = Convert.ToChar(Console.ReadLine());
 
             return operacaoEscolhida;
@@ -47,35 +53,135 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
         {
             Console.Clear();
 
-            Console.WriteLine("----------------------------------------");
-            Console.WriteLine("|        Gest√£o de Requisi√ß√µes        |");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("|        Gest„o de RequisiÁıes        |");
+            Console.WriteLine("---------------------------------------");
 
             Console.WriteLine();
 
-            Console.WriteLine("Cadastrando Requisi√ß√£o...");
+            Console.WriteLine("Cadastrando RequisiÁ„o...");
 
             Console.WriteLine();
+
+
+
 
 
             //adicionar a listagem de medicamentos para o usuario escolher o id do medicamento
+            Console.WriteLine(
+            "| {0, -10} | {1, -15} | {2, -15} | {3, -10} |",
+                 "Id", "Nome", "DescriÁ„o", "Quantidade"
+            );
+
+            Entidade[] medicamentosCadastrados = RepositorioMedicamento.SelecionarTudo();
+
+            foreach (Medicamento medic in medicamentosCadastrados)
+            {
+                int quantidadeVerificada;
+
+                if (medic == null)
+                    continue;
+
+
+                Console.WriteLine(
+                    "| {0, -10} | {1, -15} | {2, -15} | {3, -10} |",
+                    medic.Id, medic.Nome, medic.Descricao, medic.Quantidade
+                );
+
+            }
+
+
             Console.Write("Digite o ID do Medicamento: ");
             int idMedicamento = int.Parse(Console.ReadLine());
 
+            Medicamento medicamentoSelecionado = (Medicamento)RepositorioMedicamento.SelecionarPorId(idMedicamento);
+
+
+
+            while (medicamentoSelecionado.Quantidade <= 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("O Medicamento Escolhido n„o est· DisponÌvel no Estoque");
+                Console.ResetColor();
+                Console.WriteLine("Por Favor Escolha outro Medicamento: ");
+
+
+                Console.Write("Digite o ID do Medicamento: ");
+                idMedicamento = int.Parse(Console.ReadLine());
+
+                medicamentoSelecionado = (Medicamento)RepositorioMedicamento.SelecionarPorId(idMedicamento);
+            }
+
+            if(medicamentoSelecionado.Quantidade > 0 && medicamentoSelecionado.Quantidade < 10)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"O Medicamento Escolhido se encontra com Baixo Estoque: {medicamentoSelecionado.Quantidade}");
+                Console.ResetColor();
+            }
+
+
+
             //adicionar a listagem de pacientes para o usuario escolher o id do paciente
+            Console.WriteLine(
+            "| {0, -10} | {1, -15} | {2, -15} | {3, -20} |",
+                "Id", "Nome", "CPF", "Numero do Cart„o SUS"
+            );
+
+            Entidade[] pacientesCadastrados = RepositorioPaciente.SelecionarTudo();
+
+            foreach (Paciente pac in pacientesCadastrados)
+            {
+                if (pac == null)
+                    continue;
+
+                Console.WriteLine(
+                "| {0, -10} | {1, -15} | {2, -15} | {3, -20} |",
+                 pac.Id, pac.Nome, pac.Cpf, pac.NumeroCartaoSus
+                );
+            }
+
             Console.Write("Digite o ID do Paciente: ");
             int idPaciente = int.Parse(Console.ReadLine());
+
+            Paciente pacienteSelecionado = (Paciente)RepositorioPaciente.SelecionarPorId(idPaciente);
+
+
+
 
             Console.Write("Digite a quantidade de Medicamento: ");
             int quantidadeMedicamento = int.Parse(Console.ReadLine());
 
-            Console.Write("Digite o endere√ßo do requisicao:");
+            bool quantidadeValida = false;
+
+            while(!quantidadeValida)
+            {
+                if (quantidadeMedicamento > medicamentoSelecionado.Quantidade && quantidadeMedicamento != 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("A quantidade Digitada È maior que o Estoque Presente, Por Favor Informe outro valor.");
+                    Console.ResetColor();
+
+                    Console.Write("Digite a quantidade de Medicamento: ");
+                    quantidadeMedicamento = int.Parse(Console.ReadLine());
+                }
+                else
+                    quantidadeValida = true;
+            }
+
+            medicamentoSelecionado.Quantidade -= quantidadeMedicamento;
+            quantidadeValida = true;
+
+
+
+            Console.Write("Digite a Data de Validade Requisicao:");
             DateTime dataValidade = Convert.ToDateTime(Console.ReadLine());
 
 
-            //Requisicao requisicao = new Requisicao();
 
-            //repositorio.CadastrarRequisicao(requisicao);
+
+            Requisicao requisicao = new Requisicao(medicamentoSelecionado, pacienteSelecionado, quantidadeMedicamento, dataValidade);
+
+            RepositorioRequisicao.Cadastrar(requisicao);
 
             Program.ExibirMensagem("O requisicao foi cadastrado com sucesso!", ConsoleColor.Green);
         }
@@ -86,140 +192,199 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
 
 
 
-        //public void EditarRequisicao()
-        //{
-        //    Console.Clear();
-
-        //    Console.WriteLine("----------------------------------------");
-        //    Console.WriteLine("|        Gest√£o de Requisicaos        |");
-        //    Console.WriteLine("----------------------------------------");
-
-        //    Console.WriteLine();
-
-        //    Console.WriteLine("Editando Requisicao...");
-
-        //    Console.WriteLine();
-
-        //    VisualizarRequisicaos(false);
-
-        //    Console.Write("Digite o ID do requisicao que deseja editar: ");
-        //    int idRequisicaoEscolhido = Convert.ToInt32(Console.ReadLine());
-
-        //    if (!repositorio.ExisteRequisicao(idRequisicaoEscolhido))
-        //    {
-        //        Program.ExibirMensagem("O requisicao mencionado n√£o existe!", ConsoleColor.DarkYellow);
-        //        return;
-        //    }
-
-        //    Console.WriteLine();
-
-
-
-        //    Console.Write("Digite o nome do requisicao: ");
-        //    string nome = Console.ReadLine();
-
-        //    Console.Write("Digite o CPF do requisicao: ");
-        //    string cpf = Console.ReadLine();
-
-        //    Console.Write("Digite o endere√ßo do requisicao:");
-        //    string endereco = Console.ReadLine();
-
-        //    Console.Write("Digite o n√∫mero do Cart√£o do SUS do requisicao, ex: (000-0000-0000-0000):  ");
-        //    string numeroSus = Console.ReadLine();
-
-        //    Requisicao novoRequisicao = new Requisicao(nome, cpf, endereco, numeroSus);
-
-
-
-        //    bool conseguiuEditar = repositorio.EditarRequisicao(idRequisicaoEscolhido, novoRequisicao);
-
-        //    if (!conseguiuEditar)
-        //    {
-        //        Program.ExibirMensagem("Houve um erro durante a edi√ß√£o de requisicao", ConsoleColor.Red);
-        //        return;
-        //    }
-
-        //    Program.ExibirMensagem("O requisicao foi editado com sucesso!", ConsoleColor.Green);
-        //}
-
-
-        //public void ExcluirRequisicao()
-        //{
-        //    Console.Clear();
-
-        //    Console.WriteLine("----------------------------------------");
-        //    Console.WriteLine("|        Gest√£o de Requisicaos        |");
-        //    Console.WriteLine("----------------------------------------");
-
-        //    Console.WriteLine();
-
-        //    Console.WriteLine("Excluindo Requisicao...");
-
-        //    Console.WriteLine();
-
-        //    VisualizarRequisicaos(false);
-
-        //    Console.Write("Digite o ID do requisicao que deseja excluir: ");
-        //    int idRequisicaoEscolhido = Convert.ToInt32(Console.ReadLine());
-
-        //    if (!repositorio.ExisteRequisicao(idRequisicaoEscolhido))
-        //    {
-        //        Program.ExibirMensagem("O requisicao mencionado n√£o existe!", ConsoleColor.DarkYellow);
-        //        return;
-        //    }
-
-        //    bool conseguiuExcluir = repositorio.ExcluirRequisicao(idRequisicaoEscolhido);
-
-        //    if (!conseguiuExcluir)
-        //    {
-        //        Program.ExibirMensagem("Houve um erro durante a exclus√£o do requisicao", ConsoleColor.Red);
-        //        return;
-        //    }
-
-        //    Program.ExibirMensagem("O requisicao foi exclu√≠do com sucesso!", ConsoleColor.Green);
-        //}
-
-
-
-
-        public void VisualizarRequisicaos(bool exibirTitulo)
+        public void EditarRequisicao()
         {
+            Console.Clear();
+
+            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("|        Gest„o de Requisicaos        |");
+            Console.WriteLine("---------------------------------------");
+
+            Console.WriteLine();
+
+            Console.WriteLine("Editando Requisicao...");
+
+            Console.WriteLine();
+
+            VisualizarItens(false);
+
+            Console.Write("Digite o ID do requisicao que deseja editar: ");
+            int idRequisicaoEscolhido = Convert.ToInt32(Console.ReadLine());
+
+            if (!RepositorioRequisicao.ExisteItem(idRequisicaoEscolhido))
+            {
+                Program.ExibirMensagem("O requisicao mencionado n„o existe!", ConsoleColor.DarkYellow);
+                return;
+            }
+
+            Console.WriteLine();
+
+
+
+            //adicionar a listagem de medicamentos para o usuario escolher o id do medicamento
+            Console.WriteLine(
+            "| {0, -10} | {1, -15} | {2, -15} | {3, -10} |",
+                 "Id", "Nome", "DescriÁ„o", "Quantidade"
+            );
+
+            Entidade[] medicamentosCadastrados = RepositorioMedicamento.SelecionarTudo();
+
+            foreach (Medicamento medic in medicamentosCadastrados)
+            {
+                if (medic == null)
+                    continue;
+
+                Console.WriteLine(
+                    "| {0, -10} | {1, -15} | {2, -15} | {3, -10} |",
+                    medic.Id, medic.Nome, medic.Descricao, medic.Quantidade
+                );
+            }
+
+
+            Console.Write("Digite o ID do Medicamento: ");
+            int idMedicamento = int.Parse(Console.ReadLine());
+
+            Medicamento medicamentoSelecionado = (Medicamento)RepositorioMedicamento.SelecionarPorId(idMedicamento);
+
+
+
+
+
+            //adicionar a listagem de pacientes para o usuario escolher o id do paciente
+            Console.WriteLine(
+            "| {0, -10} | {1, -15} | {2, -15} | {3, -20} |",
+                "Id", "Nome", "CPF", "Numero do Cart„o SUS"
+            );
+
+            Entidade[] pacientesCadastrados = RepositorioPaciente.SelecionarTudo();
+
+            foreach (Paciente pac in pacientesCadastrados)
+            {
+                if (pac == null)
+                    continue;
+
+                Console.WriteLine(
+                "| {0, -10} | {1, -15} | {2, -15} | {3, -20} |",
+                 pac.Id, pac.Nome, pac.Cpf, pac.NumeroCartaoSus
+                );
+            }
+
+            Console.Write("Digite o ID do Paciente: ");
+            int idPaciente = int.Parse(Console.ReadLine());
+
+            Paciente pacienteSelecionado = (Paciente)RepositorioPaciente.SelecionarPorId(idPaciente);
+
+
+
+
+            Console.Write("Digite a quantidade de Medicamento: ");
+            int quantidadeMedicamento = int.Parse(Console.ReadLine());
+
+            Console.Write("Digite a Data de Validade Requisicao:");
+            DateTime dataValidade = Convert.ToDateTime(Console.ReadLine());
+
+
+
+
+            Requisicao novaRequisicao = new Requisicao(medicamentoSelecionado, pacienteSelecionado, quantidadeMedicamento, dataValidade);
+
+
+
+            bool conseguiuEditar = RepositorioRequisicao.Editar(idRequisicaoEscolhido, novaRequisicao);
+
+            if (!conseguiuEditar)
+            {
+                Program.ExibirMensagem("Houve um erro durante a ediÁ„o de requisicao", ConsoleColor.Red);
+                return;
+            }
+
+            Program.ExibirMensagem("O requisicao foi editado com sucesso!", ConsoleColor.Green);
+        }
+
+
+        public void ExcluirRequisicao()
+        {
+            Console.Clear();
+
+            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("|        Gest„o de Requisicaos        |");
+            Console.WriteLine("---------------------------------------");
+
+            Console.WriteLine();
+
+            Console.WriteLine("Excluindo Requisicao...");
+
+            Console.WriteLine();
+
+            VisualizarItens(false);
+
+            Console.Write("Digite o ID do requisicao que deseja excluir: ");
+            int idRequisicaoEscolhido = Convert.ToInt32(Console.ReadLine());
+
+            if (!RepositorioRequisicao.ExisteItem(idRequisicaoEscolhido))
+            {
+                Program.ExibirMensagem("O requisicao mencionado n„o existe!", ConsoleColor.DarkYellow);
+                return;
+            }
+
+            bool conseguiuExcluir = RepositorioRequisicao.Excluir(idRequisicaoEscolhido);
+
+            if (!conseguiuExcluir)
+            {
+                Program.ExibirMensagem("Houve um erro durante a exclus„o do requisicao", ConsoleColor.Red);
+                return;
+            }
+
+            Program.ExibirMensagem("O requisicao foi excluÌdo com sucesso!", ConsoleColor.Green);
+        }
+
+
+
+
+        public void VisualizarItens(bool exibirTitulo)
+        {
+            bool pausaParaVisualizacao = false;
+
             if (exibirTitulo)
             {
                 Console.Clear();
 
-                Console.WriteLine("----------------------------------------");
-                Console.WriteLine("|        Gest√£o de Requisicaos        |");
-                Console.WriteLine("----------------------------------------");
+                Console.WriteLine("---------------------------------------");
+                Console.WriteLine("|        Gest„o de Requisicaos        |");
+                Console.WriteLine("---------------------------------------");
 
                 Console.WriteLine();
 
                 Console.WriteLine("Visualizando Requisicaos...");
+
+                pausaParaVisualizacao = true;
             }
 
             Console.WriteLine();
 
             Console.WriteLine(
-                "| {0, -10} | {1, -15} | {2, -15} | {3, -19} |",
-                   "Id", "Nome", "CPF", "Numero do Cart√£o SUS"
+                "| {0, -5} | {1, -20} | {2, -20} | {3, -10} | {4, -10} |",
+                   "Id",   "Medicamento", "Paciente", "Quantidade", "Data de Validade"
                 );
 
-            Requisicao[] requisicoesCadastrados = repositorio.SelecionarRequisicaos();
 
-            for (int i = 0; i < requisicoesCadastrados.Length; i++)
+            Entidade[] requisicoesCadastradas = RepositorioRequisicao.SelecionarTudo();
+
+            foreach (Requisicao rec in requisicoesCadastradas)
             {
-                Requisicao pac = requisicoesCadastrados[i];
-
-                if (pac == null)
+                if (rec == null)
                     continue;
 
                 Console.WriteLine(
-                "| {0, -10} | {1, -15} | {2, -15} | {3, -19} |",
-                 pac.Id, pac.Nome, pac.Cpf, pac.NumeroCartaoSus
+                "| {0, -5} | {1, -20} | {2, -20} | {3, -10} | {4, -10} |",
+                   rec.Id, rec.Medicamento.Nome, rec.Paciente.Nome, rec.Quantidade, rec.DataValidade.ToShortDateString()
                 );
             }
 
-            Console.ReadLine();
+
+            if (pausaParaVisualizacao)
+                Console.ReadLine();
+
             Console.WriteLine();
         }
     }

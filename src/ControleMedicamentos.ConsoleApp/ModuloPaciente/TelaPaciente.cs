@@ -1,17 +1,25 @@
-﻿using ControleMedicamentos.ConsoleApp.ModuloPaciente;
+﻿using ControleMedicamentos.ConsoleApp.Compartilhado;
+using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
+using ControleMedicamentos.ConsoleApp.ModuloPaciente;
+using System;
 
 namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
 {
-    public class TelaPaciente
+    public class TelaPaciente : Tela
     {
-        public RepositorioPaciente repositorio = new RepositorioPaciente();
+        
+        RepositorioPaciente RepositorioPaciente { get; set; }
 
-        public TelaPaciente()
+        public TelaPaciente(RepositorioPaciente repositorioPaciente)
         {
+            RepositorioPaciente = repositorioPaciente;
+
             Paciente pacienteTeste = new Paciente("Joaozinho", "111-222-333-44", "Bairro Universitario", "007 7500 4002 8922");
 
-            repositorio.CadastrarPaciente(pacienteTeste);
+            RepositorioPaciente.Cadastrar(pacienteTeste);
         }
+
+
 
 
 
@@ -20,9 +28,9 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
         {
             Console.Clear();
 
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine("|        Gestão de Pacientes        |");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
 
             Console.WriteLine();
 
@@ -47,9 +55,9 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
         {
             Console.Clear();
 
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine("|        Gestão de Pacientes        |");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
 
             Console.WriteLine();
 
@@ -71,7 +79,7 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
 
             Paciente paciente = new Paciente(nome, cpf, endereco, numeroSus);
 
-            repositorio.CadastrarPaciente(paciente);
+            RepositorioPaciente.Cadastrar(paciente);
 
             Program.ExibirMensagem("O paciente foi cadastrado com sucesso!", ConsoleColor.Green);
         }
@@ -86,9 +94,9 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
         {
             Console.Clear();
 
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine("|        Gestão de Pacientes        |");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
 
             Console.WriteLine();
 
@@ -96,12 +104,12 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
 
             Console.WriteLine();
 
-            VisualizarPacientes(false);
+            VisualizarItens(false);
 
             Console.Write("Digite o ID do paciente que deseja editar: ");
             int idPacienteEscolhido = Convert.ToInt32(Console.ReadLine());
 
-            if (!repositorio.ExistePaciente(idPacienteEscolhido))
+            if (!RepositorioPaciente.ExisteItem(idPacienteEscolhido))
             {
                 Program.ExibirMensagem("O paciente mencionado não existe!", ConsoleColor.DarkYellow);
                 return;
@@ -127,7 +135,7 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
 
 
 
-            bool conseguiuEditar = repositorio.EditarPaciente(idPacienteEscolhido, novoPaciente);
+            bool conseguiuEditar = RepositorioPaciente.Editar(idPacienteEscolhido, novoPaciente);
 
             if (!conseguiuEditar)
             {
@@ -143,9 +151,9 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
         {
             Console.Clear();
 
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine("|        Gestão de Pacientes        |");
-            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("-------------------------------------");
 
             Console.WriteLine();
 
@@ -153,18 +161,18 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
 
             Console.WriteLine();
 
-            VisualizarPacientes(false);
+            VisualizarItens(false);
 
             Console.Write("Digite o ID do paciente que deseja excluir: ");
             int idPacienteEscolhido = Convert.ToInt32(Console.ReadLine());
 
-            if (!repositorio.ExistePaciente(idPacienteEscolhido))
+            if (!RepositorioPaciente.ExisteItem(idPacienteEscolhido))
             {
                 Program.ExibirMensagem("O paciente mencionado não existe!", ConsoleColor.DarkYellow);
                 return;
             }
 
-            bool conseguiuExcluir = repositorio.ExcluirPaciente(idPacienteEscolhido);
+            bool conseguiuExcluir = RepositorioPaciente.Excluir(idPacienteEscolhido);
 
             if (!conseguiuExcluir)
             {
@@ -176,46 +184,51 @@ namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
         }
 
 
-
-
-        public void VisualizarPacientes(bool exibirTitulo)
+        public void VisualizarItens(bool exibirTitulo)
         {
+            bool pausaParaVisualizacao = false;
+
             if (exibirTitulo)
             {
                 Console.Clear();
 
                 Console.WriteLine("----------------------------------------");
-                Console.WriteLine("|        Gestão de Pacientes        |");
+                Console.WriteLine($"|        Gestão de Pacientes        |");
                 Console.WriteLine("----------------------------------------");
 
                 Console.WriteLine();
 
-                Console.WriteLine("Visualizando Pacientes...");
-            }
+                Console.WriteLine($"Visualizando Pacientes...");
 
+                pausaParaVisualizacao = true;
+            }
             Console.WriteLine();
 
+
+
             Console.WriteLine(
-                "| {0, -10} | {1, -15} | {2, -15} | {3, -19} |" ,
-                   "Id",     "Nome",    "CPF", "Numero do Cartão SUS"
-                );
+            "| {0, -10} | {1, -15} | {2, -15} | {3, -20} |",
+                "Id", "Nome", "CPF", "Numero do Cartão SUS"
+            );
 
-            Paciente[] pacientesCadastrados = repositorio.SelecionarPacientes();
+            Entidade[] pacientesCadastrados = RepositorioPaciente.SelecionarTudo();
 
-            for (int i = 0; i < pacientesCadastrados.Length; i++)
+            foreach (Paciente pac in pacientesCadastrados)
             {
-                Paciente pac = pacientesCadastrados[i];
-
                 if (pac == null)
                     continue;
 
                 Console.WriteLine(
-                "| {0, -10} | {1, -15} | {2, -15} | {3, -19} |",
+                "| {0, -10} | {1, -15} | {2, -15} | {3, -20} |",
                  pac.Id, pac.Nome, pac.Cpf, pac.NumeroCartaoSus
                 );
             }
 
-            Console.ReadLine();
+
+
+            if (pausaParaVisualizacao)
+                Console.ReadLine();
+
             Console.WriteLine();
         }
     }

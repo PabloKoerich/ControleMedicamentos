@@ -1,13 +1,12 @@
 ﻿using ControleMedicamentos.ConsoleApp.Compartilhado;
 using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
 using ControleMedicamentos.ConsoleApp.ModuloPaciente;
+using System;
 
 namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
 {
-    public class Requisicao
+    public class Requisicao : Entidade
     {
-        public int Id { get; set; }
-
         public Medicamento Medicamento { get; set; }
         public Paciente Paciente { get; set; }
 
@@ -17,7 +16,6 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
 
         public Requisicao(Medicamento medicamento, Paciente paciente, int quantidade, DateTime dataValidade)
         {
-            Id = GeradorId.GerarIdRequisicao();
             Medicamento = medicamento;
             Paciente = paciente;
             Quantidade = quantidade;
