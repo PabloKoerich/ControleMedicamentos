@@ -3,6 +3,8 @@ using ControleMedicamentos.ConsoleApp.ModuloFuncionario;
 using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
 using ControleMedicamentos.ConsoleApp.ModuloPaciente;
 using ControleMedicamentos.ConsoleApp.ModuloRequisicao;
+using ControleMedicamentos.ConsoleApp.ModuloFornecedor;
+
 
 namespace ControleMedicamentos.ConsoleApp
 {
@@ -51,6 +53,13 @@ namespace ControleMedicamentos.ConsoleApp
             telaRequisicaoSaida.repositorioPaciente = repositorioPaciente;
             telaRequisicaoSaida.repositorioMedicamento = repositorioMedicamento;
 
+            RepositorioFornecedor repositorioFornecedor = new RepositorioFornecedor(); 
+              
+            TelaFornecedor telafornecedor = new TelaFornecedor();
+            telafornecedor.repositorio = repositorioFornecedor;
+            telafornecedor.tipoEntidade = "Fornecedor";
+
+
             while (true)
             {
                 char opcaoPrincipalEscolhida = TelaPrincipal.ApresentarMenuPrincipal();
@@ -73,6 +82,11 @@ namespace ControleMedicamentos.ConsoleApp
                     tela = telaFuncionario;
 
 
+             
+                else if (opcaoPrincipalEscolhida == '5')
+                    tela = telafornecedor;
+
+
                 char operacaoEscolhida = tela.ApresentarMenu();
 
 
@@ -90,6 +104,9 @@ namespace ControleMedicamentos.ConsoleApp
 
                 else if (operacaoEscolhida == '4')
                     tela.VisualizarRegistros(true);
+           
+            
+            
             }
 
             Console.ReadLine();
